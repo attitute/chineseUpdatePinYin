@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <input type="text" id="value">
+  <button id="btn">转换</button>
+  <br>
+  <input type="text" id="split" placeholder="分隔符">
+  <br />
+  <text>所有拼音</text>
+  <input type="checkbox" id="check1"></input>
+  <br />
+  <text>小写</text>
+  <input type="checkbox" id="check2"></input>
+  <br />
+  <text id="text"></text>
+</body>
+
+</html>
+<script src="./update.js"></script>
+<script>
+  /** 实现思路
+   * 1. 将字符拆分 只转换汉字 原有的字符不进行转换 拼接汉字与不转换字符
+   * 2. 只转换汉字 需要判断是不是汉字
+   * 3. 汉字转拼音 需要一个拼音与unicode码对应的库
+   */
+  /**
+   * @param str 传入的字符串
+   * @param split 分隔符 默认空
+   * @param isUppercase 是否需要大小写 默认true
+   * @param isFirst 是否获取首字母 默认true
+   */
+  function getPinYinFirstCharacter(str, split = '', isUppercase = true, isFirst = true) {
+    let result = '';
+    for (let index = 0; index < str.length; index++) {
+      let pY = getPinYin(str[index], isUppercase, isFirst)
+      if (/^[\u4E00-\u9FA5]$/.test(str[index])) {
+        if (!pY) {
+          result += str[index]
+          continue
+        }
+        result += pY
+      } else {
+        result += str[index]
+      }
+      if (index < str.length - 1) result += split
+    }
+    return result.trim()
+  }
+  /** 单个汉字转拼音
+   * @param str 字符
+   * @param isUppercase 是否转换大写
+   * @param isFirst 是否获取首字母
+   * @param 返回值 未匹配到拼音返回false
+   */
+  function getPinYin(str, isUppercase = true, isFirst = true) {
+    for (const key in PinYin) {
+      if (PinYin[key].includes(str)) {
+        if (isUppercase) {
+          if (isFirst) {
+            return key.substr(0, 1).toUpperCase()
+            break
+          } else {
+            return key.toUpperCase()
+            break
+          }
+        } else {
+          if (isFirst) {
+            return key.substr(0, 1)
+            break
+          } else {
+            return key
+            break
+          }
+        }
+      }
+    }
+    return false
+  }
+  console.log(getPinYin('你', true, true));
+
+
+  let split = document.getElementById('split')
+  let btn = document.getElementById('btn')
+  let check1 = document.getElementById('check1')
+  let check2 = document.getElementById('check2')
+  let value1 = document.getElementById('value')
+  let text1 = document.getElementById('text')
+  let isFirst = true,
+    isUppercase = true;
+  btn.onclick = () => {
+    check1.checked?isFirst = false:isFirst=true
+    check2.checked?isUppercase = false:isUppercase=true
+    text1.innerText = getPinYinFirstCharacter(value1.value, split.value || '', isUppercase, isFirst)
+  }
+</script>
